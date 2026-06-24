@@ -122,6 +122,11 @@
   .recap-head{display:flex; align-items:center; gap:8px}
   .recap-title{font-size:14px; font-weight:800}
   .recap-votes{margin-left:auto; font-size:11px; color:var(--accent); font-weight:700; white-space:nowrap}
+  .live{margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:var(--accent); white-space:nowrap}
+  .live .dot{position:relative; width:8px; height:8px; border-radius:50%; background:var(--accent); flex:0 0 8px}
+  .live .dot::after{content:''; position:absolute; inset:0; border-radius:50%; background:var(--accent); animation:livePulse 1.6s ease-out infinite}
+  @keyframes livePulse{0%{transform:scale(1); opacity:.65} 100%{transform:scale(2.8); opacity:0}}
+  @media (prefers-reduced-motion:reduce){ .live .dot::after{animation:none} }
   .recap-sub{font-size:11px; color:var(--muted); margin:4px 0 2px; line-height:1.4}
   .recap-note{font-size:11px; color:var(--accent2); margin:9px 0 0}
   .recap-loading{font-size:12px; color:var(--muted); padding:16px; text-align:center}
@@ -231,6 +236,7 @@
     <div class="recap">
       <div class="recap-head">
         <div class="recap-title" id="recapTitle"></div>
+        <span class="live" id="recapLive"><span class="dot"></span><span id="recapLiveLabel"></span></span>
         <div class="recap-votes" id="recapVotes"></div>
       </div>
       <div class="recap-sub" id="recapSub"></div>
@@ -314,6 +320,7 @@ const I18N = {
     recapLoading:'Chargement des résultats…',
     recapError:'Résultats de la communauté indisponibles pour le moment. Affichage de votre vote.',
     recapSoloNote:'En attente de connexion au Google Sheet — seul votre vote est affiché.',
+    live:'En direct',
     votes:n=>`${n} vote${n>1?'s':''}`,
     stat:{ m:n=>`${n} match${n>1?'s':''}`, g:n=>`${n} but${n>1?'s':''}`, a:n=>`${n} passe${n>1?'s':''} déc.` },
   },
@@ -341,6 +348,7 @@ const I18N = {
     recapLoading:'Loading results…',
     recapError:'Community results unavailable right now. Showing your vote.',
     recapSoloNote:'Waiting for the Google Sheet connection — only your vote is shown.',
+    live:'Live',
     votes:n=>`${n} vote${n>1?'s':''}`,
     stat:{ m:n=>`${n} match${n>1?'es':''}`, g:n=>`${n} goal${n>1?'s':''}`, a:n=>`${n} assist${n>1?'s':''}` },
   },
@@ -368,6 +376,7 @@ const I18N = {
     recapLoading:'Carregando resultados…',
     recapError:'Resultados da comunidade indisponíveis no momento. Exibindo o seu voto.',
     recapSoloNote:'Aguardando a conexão com o Google Sheets — apenas o seu voto é exibido.',
+    live:'Ao vivo',
     votes:n=>`${n} voto${n>1?'s':''}`,
     stat:{ m:n=>`${n} jogo${n>1?'s':''}`, g:n=>`${n} gol${n>1?'s':''}`, a:n=>`${n} assistência${n>1?'s':''}` },
   },
@@ -885,6 +894,7 @@ function applyI18n(){
   document.getElementById('backBtn').textContent = L.back;
   document.getElementById('recapTitle').textContent = L.recapTitle;
   document.getElementById('recapSub').textContent = L.recapSub;
+  document.getElementById('recapLiveLabel').textContent = L.live;
 }
 
 /* ================================================================
