@@ -69,19 +69,33 @@ l'iframe s'auto-redimensionne (pas de scroll interne, pas de CLS).
   src="https://jcrochet-netizen.github.io/top10-mondial-2026/"
   title="Top 10 des meilleurs joueurs du Mondial 2026"
   loading="lazy"
+  scrolling="no"
   referrerpolicy="strict-origin-when-cross-origin"
-  style="width:100%;border:0;min-height:1100px;"></iframe>
+  style="width:100%;max-width:640px;display:block;margin:0 auto;border:0;overflow:hidden;min-height:1100px;"></iframe>
 
 <script>
-window.addEventListener('message', function (e) {
-  if (e.data && e.data.type === 'top10-height') {
-    document.getElementById('top10-wc2026').style.height = e.data.height + 'px';
-  }
-});
+(function () {
+  var ORIGIN = 'https://jcrochet-netizen.github.io';   // origine de confiance (à adapter si autre hébergement)
+  var frame  = document.getElementById('top10-wc2026');
+  window.addEventListener('message', function (e) {
+    if (e.origin !== ORIGIN) return;                   // 1) on n'accepte QUE les messages de notre outil
+    var d = e.data;
+    if (!d || d.type !== 'top10-height') return;
+    var h = parseInt(d.height, 10);
+    if (!h || h < 1) return;                            // 2) hauteur valide uniquement
+    if (!frame) frame = document.getElementById('top10-wc2026');
+    if (frame) frame.style.height = h + 'px';           // 3) référence en cache + garde
+  }, false);
+})();
 </script>
 ```
 
 Versions : `…/` (FR), `…/en.html` (EN), `…/pt.html` (PT-BR).
+
+> Sécurité : le contrôle `e.origin` empêche tout autre site/script d'agir sur l'iframe.
+> `scrolling="no"` + `overflow:hidden` évitent le double-défilement sur mobile, et
+> `display:block; margin:0 auto; max-width` centrent proprement le widget.
+> Le message de hauteur ne transporte aucune donnée sensible (juste un entier).
 
 ## Bonnes pratiques SEO
 
