@@ -106,7 +106,33 @@
   .btn:hover{border-color:var(--accent)}
   .btn.primary{background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700}
   .btn.primary:hover{filter:brightness(.94)}
-  .btn:disabled{opacity:.55; cursor:default}
+  .btn:disabled{opacity:.55; cursor:default; filter:none}
+  .hint{text-align:center; font-size:11px; color:var(--muted); margin-top:6px; min-height:14px}
+
+  /* ---- Recap screen ---- */
+  .recap{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px}
+  .recap-head{display:flex; align-items:center; gap:8px}
+  .recap-title{font-size:14px; font-weight:800}
+  .recap-votes{margin-left:auto; font-size:11px; color:var(--accent); font-weight:700; white-space:nowrap}
+  .recap-sub{font-size:11px; color:var(--muted); margin:4px 0 2px; line-height:1.4}
+  .recap-note{font-size:11px; color:var(--accent2); margin:9px 0 0}
+  .recap-loading{font-size:12px; color:var(--muted); padding:16px; text-align:center}
+  #recapList{margin-top:10px}
+  .rrow{display:flex; align-items:center; gap:9px; background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:7px 9px; margin-bottom:6px}
+  .rrow .rk{flex:0 0 22px; text-align:center; font-weight:800; font-size:16px; color:var(--muted); font-variant-numeric:tabular-nums}
+  .rrow[data-r="1"] .rk{color:var(--gold)}
+  .rrow[data-r="2"] .rk{color:var(--silver)}
+  .rrow[data-r="3"] .rk{color:var(--bronze)}
+  .rrow .ph{width:36px; height:36px; border-radius:50%; flex:0 0 36px; overflow:hidden; border:1px solid var(--line); background:#eef1f4}
+  .rrow .ph img{width:100%; height:100%; object-fit:cover; display:block}
+  .rrow .info{min-width:0; flex:1}
+  .rrow .nm{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .rrow .ct{font-size:10.5px; color:var(--muted); margin-top:1px}
+  .rbar{height:4px; background:#eceff3; border-radius:3px; margin-top:4px; overflow:hidden}
+  .rbar span{display:block; height:100%; background:var(--accent); border-radius:3px}
+  .rrow .metric{flex:0 0 auto; text-align:right; min-width:54px}
+  .rrow .metric .big{font-size:14px; font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums}
+  .rrow .metric .small{font-size:9.5px; color:var(--muted)}
 
   .share{margin-top:14px; text-align:center}
   .share h4{margin:0 0 9px; font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--muted); font-weight:700}
@@ -135,6 +161,7 @@
     <p id="subtitle"></p>
   </header>
 
+  <div id="viewBuild">
   <div class="board">
     <section class="col">
       <h2><span id="poolLabel"></span> <span class="cnt" id="poolCnt">10</span></h2>
@@ -148,6 +175,22 @@
 
   <div class="toolbar">
     <button class="btn" id="resetBtn"></button>
+    <button class="btn primary" id="validateBtn" disabled></button>
+  </div>
+  <div class="hint" id="validateHint"></div>
+  </div><!-- /viewBuild -->
+
+  <div id="viewRecap" hidden>
+    <div class="recap">
+      <div class="recap-head">
+        <div class="recap-title" id="recapTitle"></div>
+        <div class="recap-votes" id="recapVotes"></div>
+      </div>
+      <div class="recap-sub" id="recapSub"></div>
+      <div class="recap-note" id="recapNote"></div>
+      <div id="recapList"></div>
+      <div class="toolbar"><button class="btn" id="backBtn"></button></div>
+    </div>
   </div>
 
   <div class="share">
@@ -207,6 +250,13 @@ const I18N = {
     hashtags:'Mondial2026,Top10',
     imgSubtitle:'Après les 2 premières journées de la phase de groupes',
     imgEmpty:'Aucun joueur classé pour le moment.', imgFoot:'Photos & statistiques : Sportmonks',
+    validate:'Valider mon Top 10', validateHint:'Classez les 10 joueurs pour valider',
+    back:'← Modifier mon classement', recapTitle:'Le Top 10 de la communauté',
+    recapSub:"Pour chaque rang, le joueur le plus voté — chaque joueur n'apparaît qu'à sa meilleure place.",
+    recapLoading:'Chargement des résultats…',
+    recapError:'Résultats de la communauté indisponibles pour le moment. Affichage de votre vote.',
+    recapSoloNote:'En attente de connexion au Google Sheet — seul votre vote est affiché.',
+    votes:n=>`${n} vote${n>1?'s':''}`,
     stat:{ m:n=>`${n} match${n>1?'s':''}`, g:n=>`${n} but${n>1?'s':''}`, a:n=>`${n} passe${n>1?'s':''} déc.` },
   },
   en:{
@@ -227,6 +277,13 @@ const I18N = {
     hashtags:'WorldCup2026,Top10',
     imgSubtitle:'After the first 2 group-stage matchdays',
     imgEmpty:'No players ranked yet.', imgFoot:'Photos & stats: Sportmonks',
+    validate:'Validate my Top 10', validateHint:'Rank all 10 players to validate',
+    back:'← Edit my ranking', recapTitle:"The community's Top 10",
+    recapSub:'For each rank, the most-voted player — each player appears only at their best position.',
+    recapLoading:'Loading results…',
+    recapError:'Community results unavailable right now. Showing your vote.',
+    recapSoloNote:'Waiting for the Google Sheet connection — only your vote is shown.',
+    votes:n=>`${n} vote${n>1?'s':''}`,
     stat:{ m:n=>`${n} match${n>1?'es':''}`, g:n=>`${n} goal${n>1?'s':''}`, a:n=>`${n} assist${n>1?'s':''}` },
   },
   pt:{
@@ -247,6 +304,13 @@ const I18N = {
     hashtags:'CopaDoMundo2026,Top10',
     imgSubtitle:'Após as 2 primeiras rodadas da fase de grupos',
     imgEmpty:'Nenhum jogador classificado ainda.', imgFoot:'Fotos e estatísticas: Sportmonks',
+    validate:'Validar meu Top 10', validateHint:'Classifique os 10 jogadores para validar',
+    back:'← Editar meu ranking', recapTitle:'O Top 10 da comunidade',
+    recapSub:'Para cada posição, o jogador mais votado — cada jogador aparece apenas na sua melhor posição.',
+    recapLoading:'Carregando resultados…',
+    recapError:'Resultados da comunidade indisponíveis no momento. Exibindo o seu voto.',
+    recapSoloNote:'Aguardando a conexão com o Google Sheets — apenas o seu voto é exibido.',
+    votes:n=>`${n} voto${n>1?'s':''}`,
     stat:{ m:n=>`${n} jogo${n>1?'s':''}`, g:n=>`${n} gol${n>1?'s':''}`, a:n=>`${n} assistência${n>1?'s':''}` },
   },
 };
@@ -325,8 +389,11 @@ function render(){
     </div>`;
   }).join('');
 
+  const filled = ranking.filter(Boolean).length;
   document.getElementById('poolCnt').textContent = pool.length;
-  document.getElementById('rankCnt').textContent = ranking.filter(Boolean).length + '/10';
+  document.getElementById('rankCnt').textContent = filled + '/10';
+  const vb=document.getElementById('validateBtn'); if(vb) vb.disabled = filled<10;
+  const vh=document.getElementById('validateHint'); if(vh) vh.textContent = filled<10 ? L.validateHint : '';
 }
 
 /* ---------- placement logic ---------- */
@@ -453,7 +520,11 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
 /* ================================================================
    PARTAGE RÉSEAUX SOCIAUX
    ================================================================ */
-const CONFIG = { shareUrl:"" };
+const CONFIG = {
+  shareUrl:"",
+  // ▼▼ COLLEZ ICI l'URL /exec de votre Web App Google Apps Script (voir README) ▼▼
+  votesUrl:"",
+};
 let HOST_URL = "";
 try{
   if(document.referrer){
@@ -628,6 +699,112 @@ document.getElementById('shNative').addEventListener('click', shareNative);
 document.getElementById('shImg').addEventListener('click', downloadImage);
 
 /* ================================================================
+   VALIDER → ENVOI DU VOTE + ÉCRAN RECAP (Google Sheet via Apps Script)
+   ================================================================ */
+const VOTED_KEY = 'top10voted_v1';
+
+function submitVote(){
+  if(!CONFIG.votesUrl) return;
+  if(localStorage.getItem(VOTED_KEY)) return;            // 1 vote par navigateur
+  const ranking = rankedPlayers().map((p,i)=>({rank:i+1, id:p.id, name:p.name}));
+  if(!ranking.length) return;
+  const session = 't10-'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  try{
+    fetch(CONFIG.votesUrl, {
+      method:'POST', mode:'no-cors', keepalive:true,
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({session, ranking, lang:LANG})
+    });
+    localStorage.setItem(VOTED_KEY, '1');
+  }catch(_){}
+}
+
+// ajoute le vote du visiteur à une copie locale du décompte serveur
+function mergeOwnVote(base){
+  const t = JSON.parse(JSON.stringify(base||{}));
+  rankedPlayers().forEach((p,i)=>{
+    const r=i+1; const id=p.id;
+    if(!t[id]) t[id]={};
+    t[id][r] = (t[id][r]||0) + 1;
+  });
+  return t;
+}
+function totalFor(tally,id){ const o=tally[id]; if(!o) return 0; let s=0; for(const k in o) s+=o[k]; return s; }
+
+// consensus rang par rang : pour chaque rang on prend le joueur (non encore placé)
+// le plus voté à ce rang ; un joueur ne garde que sa meilleure place.
+function computeConsensus(tally){
+  const used=new Set(), res=[];
+  for(let rank=1; rank<=10; rank++){
+    let best=null, bestCount=-1, bestTot=-1;
+    for(const p of PLAYERS){
+      if(used.has(p.id)) continue;
+      const c=(tally[p.id]&&tally[p.id][rank])||0;
+      const tot=totalFor(tally,p.id);
+      if(c>bestCount || (c===bestCount && tot>bestTot)){ best=p; bestCount=c; bestTot=tot; }
+    }
+    if(best){ used.add(best.id); res.push({rank, p:best, count:Math.max(bestCount,0)}); }
+  }
+  return res;
+}
+
+function renderRecap(tally, votes){
+  document.getElementById('recapVotes').textContent = L.votes(votes);
+  const cons = computeConsensus(tally);
+  document.getElementById('recapList').innerHTML = cons.map(c=>{
+    const p=c.p, pct = votes>0 ? Math.round(c.count/votes*100) : 0;
+    return `<div class="rrow" data-r="${c.rank}">
+      <div class="rk">${c.rank}</div>
+      ${photo(p)}
+      <div class="info">
+        <div class="nm">${p.name}</div>
+        <div class="ct">${p.flag} ${cname(p)}</div>
+        <div class="rbar"><span style="width:${pct}%"></span></div>
+      </div>
+      <div class="metric"><div class="big">${pct}%</div><div class="small">${L.votes(c.count)}</div></div>
+    </div>`;
+  }).join('');
+}
+
+async function loadResults(){
+  const note=document.getElementById('recapNote');
+  document.getElementById('recapList').innerHTML = `<div class="recap-loading">${L.recapLoading}</div>`;
+  note.textContent='';
+  let serverTally=null, serverVotes=0, ok=false;
+  if(CONFIG.votesUrl){
+    try{
+      const sep = CONFIG.votesUrl.includes('?') ? '&' : '?';
+      const r = await fetch(CONFIG.votesUrl + sep + '_=' + Date.now(), {method:'GET'});
+      const data = await r.json();
+      if(data && data.ok){ serverTally=data.tally||{}; serverVotes=+data.votes||0; ok=true; }
+    }catch(_){}
+  }
+  let tally, votes;
+  if(ok && serverVotes>0){ tally=serverTally; votes=serverVotes; }
+  else {
+    tally=mergeOwnVote({}); votes=1;
+    if(!CONFIG.votesUrl) note.textContent = L.recapSoloNote;
+    else if(!ok)         note.textContent = L.recapError;
+  }
+  renderRecap(tally, votes);
+}
+
+function showRecap(){
+  submitVote();
+  document.getElementById('viewBuild').hidden = true;
+  document.getElementById('viewRecap').hidden = false;
+  window.scrollTo(0,0);
+  setTimeout(loadResults, CONFIG.votesUrl ? 800 : 0);  // laisse le POST se propager
+}
+function showBuild(){
+  document.getElementById('viewRecap').hidden = true;
+  document.getElementById('viewBuild').hidden = false;
+  window.scrollTo(0,0);
+}
+document.getElementById('validateBtn').addEventListener('click', showRecap);
+document.getElementById('backBtn').addEventListener('click', showBuild);
+
+/* ================================================================
    APPLIQUER LA LANGUE AUX TEXTES STATIQUES
    ================================================================ */
 function applyI18n(){
@@ -643,6 +820,10 @@ function applyI18n(){
   document.getElementById('lblNative').textContent = L.share;
   document.getElementById('lblImg').textContent = L.download;
   document.getElementById('foot').textContent = L.foot;
+  document.getElementById('validateBtn').textContent = L.validate;
+  document.getElementById('backBtn').textContent = L.back;
+  document.getElementById('recapTitle').textContent = L.recapTitle;
+  document.getElementById('recapSub').textContent = L.recapSub;
 }
 
 applyI18n();
