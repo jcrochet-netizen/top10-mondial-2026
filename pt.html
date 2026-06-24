@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Top 10 — Mondial 2026</title>
+<style>
+  :root{
+    --bg:#ffffff; --panel:#f6f7f9; --panel2:#ffffff; --line:#e3e7ec;
+    --txt:#14181f; --muted:#6b7682; --accent:#e11d2e; --accent2:#0ea5e9;
+    --gold:#e0a200; --silver:#8a93a0; --bronze:#c07a3e;
+    --shadow:0 6px 22px rgba(15,23,42,.14);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex; justify-content:center; padding:14px;
+  }
+  .wrap{width:100%; max-width:620px}
+
+  header{margin-bottom:12px; text-align:center; position:relative}
+  header h1{margin:0; font-size:18px; letter-spacing:.2px}
+  header h1 b{color:var(--accent)}
+  header p{margin:4px 0 0; font-size:12px; color:var(--muted)}
+  .langs{display:flex; gap:6px; justify-content:center; margin-bottom:8px}
+  .langs a{
+    font-size:10px; font-weight:700; letter-spacing:.5px; text-decoration:none;
+    color:var(--muted); border:1px solid var(--line); border-radius:6px; padding:3px 7px;
+  }
+  .langs a.active{color:#fff; background:var(--accent); border-color:var(--accent)}
+
+  .board{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .col{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:10px}
+  .col h2{
+    margin:0 0 9px; font-size:11px; text-transform:uppercase; letter-spacing:1.2px;
+    color:var(--muted); display:flex; align-items:center; gap:6px;
+  }
+  .col h2 .cnt{margin-left:auto; color:var(--accent); font-weight:700}
+
+  /* ---- Pool (left) ---- */
+  #pool{min-height:80px; display:flex; flex-direction:column; gap:7px}
+  .card{
+    display:flex; align-items:center; gap:8px; background:var(--panel2);
+    border:1px solid var(--line); border-radius:10px; padding:6px 8px;
+    cursor:grab; touch-action:none; user-select:none; transition:transform .08s, border-color .15s;
+  }
+  .card:active{cursor:grabbing}
+  .card .ph{
+    width:38px; height:38px; border-radius:50%; flex:0 0 38px; overflow:hidden;
+    background:#eef1f4 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='38' height='38'><circle cx='19' cy='14' r='8' fill='%23c2cad3'/><rect x='5' y='26' width='28' height='16' rx='8' fill='%23c2cad3'/></svg>") center/cover;
+    border:1px solid var(--line);
+  }
+  .card .ph img{width:100%; height:100%; object-fit:cover; display:block}
+  .card .info{min-width:0; flex:1}
+  .card .nm{font-size:12.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .card .ct{font-size:10.5px; color:var(--muted); margin-top:1px}
+  .card .st{font-size:10.5px; color:var(--accent); margin-top:2px; font-variant-numeric:tabular-nums}
+  .card .st .sep{color:var(--muted); margin:0 4px}
+  .card .grip{color:#b3bbc5; font-size:14px; margin-left:2px}
+
+  /* ---- Ranking (right) ---- */
+  #ranking{display:flex; flex-direction:column; gap:6px}
+  .slot{
+    display:flex; align-items:center; gap:8px; min-height:48px;
+    border:1px dashed var(--line); border-radius:10px; padding:5px 7px;
+    background:rgba(15,23,42,.02); transition:border-color .15s, background .15s;
+  }
+  .slot .rank{
+    flex:0 0 22px; text-align:center; font-weight:800; font-size:15px; color:var(--muted);
+    font-variant-numeric:tabular-nums;
+  }
+  .slot[data-rank="1"] .rank{color:var(--gold)}
+  .slot[data-rank="2"] .rank{color:var(--silver)}
+  .slot[data-rank="3"] .rank{color:var(--bronze)}
+  .slot .empty{flex:1; font-size:11px; color:var(--muted); opacity:.5}
+  .slot.filled{border-style:solid; background:var(--panel2); box-shadow:0 1px 3px rgba(15,23,42,.06)}
+  .slot.over{border-color:var(--accent); background:rgba(225,29,46,.07)}
+
+  .slotcard{display:flex; align-items:center; gap:8px; flex:1; min-width:0; cursor:grab; touch-action:none}
+  .slotcard:active{cursor:grabbing}
+  .slotcard .ph{
+    width:34px;height:34px;border-radius:50%;flex:0 0 34px;overflow:hidden;border:1px solid var(--line);background:#eef1f4;
+  }
+  .slotcard .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .slotcard .nm{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slotcard .ct{font-size:10px;color:var(--muted)}
+  .slotcard .st{font-size:10px;color:var(--accent);font-variant-numeric:tabular-nums}
+  .slotcard .st .sep{color:var(--muted);margin:0 3px}
+  .slot .rm{
+    flex:0 0 auto; width:20px;height:20px;border-radius:50%;border:none;cursor:pointer;
+    background:#eceff3;color:var(--muted);font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;
+  }
+  .slot .rm:hover{background:#fbe1e3;color:#e11d2e}
+
+  /* drag clone */
+  #drag-clone{
+    position:fixed; z-index:9999; pointer-events:none; left:0; top:0;
+    width:230px; box-shadow:var(--shadow); transform:translate(-50%,-50%) scale(1.03);
+    opacity:.96;
+  }
+  #drag-clone .card,#drag-clone .slotcard{background:var(--panel2);border:1px solid var(--accent);border-radius:10px;padding:6px 8px}
+  body.dragging{cursor:grabbing}
+  body.dragging #pool.over-pool{outline:2px dashed var(--accent); outline-offset:2px; border-radius:10px}
+
+  .toolbar{display:flex; gap:8px; margin-top:12px; justify-content:center}
+  .btn{
+    border:1px solid var(--line); background:var(--panel2); color:var(--txt);
+    font-size:12px; padding:7px 14px; border-radius:9px; cursor:pointer;
+  }
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700}
+  .btn.primary:hover{filter:brightness(.94)}
+  .btn:disabled{opacity:.55; cursor:default}
+
+  .share{margin-top:14px; text-align:center}
+  .share h4{margin:0 0 9px; font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--muted); font-weight:700}
+  .share-btns{display:flex; gap:9px; justify-content:center; flex-wrap:wrap}
+  .sbtn{
+    display:inline-flex; align-items:center; gap:7px; border:none; cursor:pointer;
+    color:#fff; font-size:12px; font-weight:600; padding:9px 14px; border-radius:9px;
+    transition:filter .15s, transform .05s;
+  }
+  .sbtn:hover{filter:brightness(1.06)} .sbtn:active{transform:translateY(1px)}
+  .sbtn svg{width:15px; height:15px; fill:currentColor}
+  .sbtn.x{background:#111}
+  .sbtn.fb{background:#1877f2}
+  .sbtn.wa{background:#25d366}
+  .sbtn.dl{background:var(--accent)}
+  .sbtn.copy{background:#5b6776}
+  .sbtn.nat{background:#0a7d57}
+  #shMsg{margin-top:8px; font-size:11px; color:var(--accent); min-height:14px; font-weight:600}
+  .foot{margin-top:12px; text-align:center; font-size:10px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav class="langs">
+      <a href="index.html" data-lang="fr">FR</a>
+      <a href="en.html" data-lang="en">EN</a>
+      <a href="pt.html" data-lang="pt">PT-BR</a>
+    </nav>
+    <h1 id="title"></h1>
+    <p id="subtitle"></p>
+  </header>
+
+  <div class="board">
+    <section class="col">
+      <h2><span id="poolLabel"></span> <span class="cnt" id="poolCnt">10</span></h2>
+      <div id="pool"></div>
+    </section>
+    <section class="col">
+      <h2><span id="rankLabel"></span> <span class="cnt" id="rankCnt">0/10</span></h2>
+      <div id="ranking"></div>
+    </section>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" id="resetBtn"></button>
+  </div>
+
+  <div class="share">
+    <h4 id="shareTitle"></h4>
+    <div class="share-btns">
+      <button class="sbtn x"  id="shX"  type="button"><svg viewBox="0 0 24 24"><path d="M18.9 1.6h3.7l-8 9.1L24 22.4h-7.4l-5.8-7.6-6.6 7.6H.5l8.6-9.8L0 1.6h7.6l5.2 6.9 6.1-6.9Zm-1.3 18.6h2L6.5 3.7H4.3l13.3 16.5Z"/></svg>X</button>
+      <button class="sbtn fb" id="shFb" type="button"><svg viewBox="0 0 24 24"><path d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7v-3.5h3.1V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9v2.2h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12Z"/></svg>Facebook</button>
+      <button class="sbtn wa" id="shWa" type="button"><svg viewBox="0 0 24 24"><path d="M.1 24l1.7-6.2A11.9 11.9 0 1 1 12 24a12 12 0 0 1-5.9-1.6L.1 24Zm6.3-3.9.4.2a9.9 9.9 0 0 0 5.2 1.4 9.9 9.9 0 1 0-8.4-4.6l.3.4-1 3.7 3.5-1.1ZM17.5 14c-.1-.2-.5-.4-1-.6-.5-.3-2.9-1.4-3.3-1.6-.4-.2-.8-.2-1.1.2-.3.5-1.2 1.6-1.5 1.9-.3.3-.5.3-1 .1-3-1.5-4.9-2.6-6.9-5.9-.5-.9.5-.8 1.5-2.8.1-.3.1-.6 0-.8-.2-.2-1.1-2.6-1.5-3.6-.4-.9-.8-.8-1.1-.8h-.9c-.3 0-.8.1-1.2.6-.4.5-1.6 1.6-1.6 3.9 0 2.3 1.7 4.5 1.9 4.8.2.3 3.3 5 8 7 3 1.2 4.1 1.3 5.5 1.1.9-.1 2.9-1.2 3.3-2.3.4-1.1.4-2.1.3-2.3Z"/></svg>WhatsApp</button>
+      <button class="sbtn copy" id="shCopy" type="button"><svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg><span id="lblCopy"></span></button>
+      <button class="sbtn nat" id="shNative" type="button" hidden><svg viewBox="0 0 24 24"><path d="M18 16.1c-.8 0-1.5.3-2 .8l-7-4.1c.1-.2.1-.5.1-.8s0-.6-.1-.8l7-4.1c.5.5 1.2.8 2 .8a3 3 0 1 0-3-3c0 .3 0 .6.1.8L8 9.8a3 3 0 1 0 0 4.4l7.1 4.2c-.1.2-.1.5-.1.7a2.9 2.9 0 1 0 3-2.9Z"/></svg><span id="lblNative"></span></button>
+      <button class="sbtn dl" id="shImg" type="button"><svg viewBox="0 0 24 24"><path d="M12 16l-5-5 1.4-1.4L11 12.2V3h2v9.2l2.6-2.6L17 11l-5 5Zm-7 3h14v2H5v-2Z"/></svg><span id="lblImg"></span></button>
+    </div>
+    <div id="shMsg"></div>
+  </div>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+/* ================================================================
+   LANGUE  — seule cette ligne change entre les variantes
+   ('fr' = index.html · 'en' = en.html · 'pt' = pt.html)
+   ================================================================ */
+const LANG = 'pt';
+
+/* ----------------- Joueurs (data figée Sportmonks) ----------------- */
+const PLAYERS = [
+  {id:96611,    name:"Kylian Mbappé",        country:"France",         flag:"🇫🇷", img:"https://cdn.sportmonks.com/images/soccer/players/3/96611.png",     apps:2, goals:4, assists:0},
+  {id:154421,   name:"Erling Haaland",       country:"Norvège",        flag:"🇳🇴", img:"https://cdn.sportmonks.com/images/soccer/players/21/154421.png",   apps:2, goals:4, assists:0},
+  {id:184798,   name:"Lionel Messi",         country:"Argentine",      flag:"🇦🇷", img:"https://cdn.sportmonks.com/images/soccer/players/30/184798.png",   apps:2, goals:5, assists:0},
+  {id:37317434, name:"Ismaël Saibari",       country:"Maroc",          flag:"🇲🇦", img:"https://cdn.sportmonks.com/images/soccer/players/26/37317434.png", apps:2, goals:2, assists:0},
+  {id:41077,    name:"Deniz Undav",          country:"Allemagne",      flag:"🇩🇪", img:"https://cdn.sportmonks.com/images/soccer/players/21/41077.png",    apps:2, goals:3, assists:2},
+  {id:9939203,  name:"Crysencio Summerville",country:"Pays-Bas",       flag:"🇳🇱", img:"https://cdn.sportmonks.com/images/soccer/players/3/9939203.png",   apps:2, goals:2, assists:1},
+  {id:37681576, name:"Johan Manzambi",       country:"Suisse",         flag:"🇨🇭", img:"https://cdn.sportmonks.com/images/soccer/players/8/37681576.png",  apps:2, goals:2, assists:0},
+  {id:524045,   name:"Daniel Munoz",         country:"Colombie",       flag:"🇨🇴", img:"https://cdn.sportmonks.com/images/soccer/players/13/524045.png",   apps:2, goals:2, assists:0},
+  {id:310131,   name:"Daichi Kamada",        country:"Japon",          flag:"🇯🇵", img:"https://cdn.sportmonks.com/images/soccer/players/19/310131.png",   apps:2, goals:2, assists:0},
+  {id:37922937, name:"Yan Diomandé",         country:"Côte d'Ivoire",  flag:"🇨🇮", img:"https://cdn.sportmonks.com/images/soccer/players/25/37922937.png", apps:2, goals:0, assists:0},
+];
+
+/* ----------------- Traductions ----------------- */
+const I18N = {
+  fr:{
+    htmlLang:'fr',
+    docTitle:'Top 10 — Meilleurs joueurs du Mondial 2026',
+    titlePre:'Top 10 — Meilleurs joueurs du ', titleRed:'Mondial 2026',
+    subtitle:'Après les 2 premières journées de la phase de groupes · glissez les joueurs vers votre classement',
+    poolLabel:'Candidats', rankLabel:'Mon Top 10',
+    emptyPool:'Tous les joueurs sont classés ✓', slotEmpty:'Glissez un joueur ici',
+    reset:'Réinitialiser', shareTitle:'Partager mon Top 10',
+    copy:'Copier', share:'Partager', download:"Télécharger l'image",
+    foot:'Photos & statistiques : Sportmonks',
+    msgCopied:'✓ Texte copié !', msgDownloaded:'✓ Image téléchargée !',
+    msgGenerating:'Génération…', msgPreparing:'Préparation…',
+    msgGenError:'Erreur lors de la génération', msgShareUnavail:'Partage indisponible',
+    shareIntro:'Mon Top 10 des meilleurs joueurs du Mondial 2026 (après 2 journées) :',
+    shareEmpty:'Compose ton Top 10 des meilleurs joueurs du Mondial 2026 (après 2 journées) !',
+    hashtags:'Mondial2026,Top10',
+    imgSubtitle:'Après les 2 premières journées de la phase de groupes',
+    imgEmpty:'Aucun joueur classé pour le moment.', imgFoot:'Photos & statistiques : Sportmonks',
+    stat:{ m:n=>`${n} match${n>1?'s':''}`, g:n=>`${n} but${n>1?'s':''}`, a:n=>`${n} passe${n>1?'s':''} déc.` },
+  },
+  en:{
+    htmlLang:'en',
+    docTitle:'Top 10 — Best players of the 2026 World Cup',
+    titlePre:'Top 10 — Best players of the ', titleRed:'2026 World Cup',
+    subtitle:'After the first 2 group-stage matchdays · drag players into your ranking',
+    poolLabel:'Candidates', rankLabel:'My Top 10',
+    emptyPool:'All players ranked ✓', slotEmpty:'Drag a player here',
+    reset:'Reset', shareTitle:'Share my Top 10',
+    copy:'Copy', share:'Share', download:'Download image',
+    foot:'Photos & stats: Sportmonks',
+    msgCopied:'✓ Text copied!', msgDownloaded:'✓ Image downloaded!',
+    msgGenerating:'Generating…', msgPreparing:'Preparing…',
+    msgGenError:'Generation error', msgShareUnavail:'Sharing unavailable',
+    shareIntro:'My Top 10 best players of the 2026 World Cup (after 2 matchdays):',
+    shareEmpty:'Build your Top 10 best players of the 2026 World Cup (after 2 matchdays)!',
+    hashtags:'WorldCup2026,Top10',
+    imgSubtitle:'After the first 2 group-stage matchdays',
+    imgEmpty:'No players ranked yet.', imgFoot:'Photos & stats: Sportmonks',
+    stat:{ m:n=>`${n} match${n>1?'es':''}`, g:n=>`${n} goal${n>1?'s':''}`, a:n=>`${n} assist${n>1?'s':''}` },
+  },
+  pt:{
+    htmlLang:'pt-BR',
+    docTitle:'Top 10 — Melhores jogadores da Copa do Mundo 2026',
+    titlePre:'Top 10 — Melhores jogadores da ', titleRed:'Copa do Mundo 2026',
+    subtitle:'Após as 2 primeiras rodadas da fase de grupos · arraste os jogadores para o seu ranking',
+    poolLabel:'Candidatos', rankLabel:'Meu Top 10',
+    emptyPool:'Todos os jogadores classificados ✓', slotEmpty:'Arraste um jogador aqui',
+    reset:'Reiniciar', shareTitle:'Compartilhar meu Top 10',
+    copy:'Copiar', share:'Compartilhar', download:'Baixar imagem',
+    foot:'Fotos e estatísticas: Sportmonks',
+    msgCopied:'✓ Texto copiado!', msgDownloaded:'✓ Imagem baixada!',
+    msgGenerating:'Gerando…', msgPreparing:'Preparando…',
+    msgGenError:'Erro ao gerar', msgShareUnavail:'Compartilhamento indisponível',
+    shareIntro:'Meu Top 10 dos melhores jogadores da Copa do Mundo 2026 (após 2 rodadas):',
+    shareEmpty:'Monte seu Top 10 dos melhores jogadores da Copa do Mundo 2026 (após 2 rodadas)!',
+    hashtags:'CopaDoMundo2026,Top10',
+    imgSubtitle:'Após as 2 primeiras rodadas da fase de grupos',
+    imgEmpty:'Nenhum jogador classificado ainda.', imgFoot:'Fotos e estatísticas: Sportmonks',
+    stat:{ m:n=>`${n} jogo${n>1?'s':''}`, g:n=>`${n} gol${n>1?'s':''}`, a:n=>`${n} assistência${n>1?'s':''}` },
+  },
+};
+const COUNTRY_I18N = {
+  "France":{en:"France",pt:"França"},
+  "Norvège":{en:"Norway",pt:"Noruega"},
+  "Argentine":{en:"Argentina",pt:"Argentina"},
+  "Maroc":{en:"Morocco",pt:"Marrocos"},
+  "Allemagne":{en:"Germany",pt:"Alemanha"},
+  "Pays-Bas":{en:"Netherlands",pt:"Países Baixos"},
+  "Suisse":{en:"Switzerland",pt:"Suíça"},
+  "Colombie":{en:"Colombia",pt:"Colômbia"},
+  "Japon":{en:"Japan",pt:"Japão"},
+  "Côte d'Ivoire":{en:"Ivory Coast",pt:"Costa do Marfim"},
+};
+const L = I18N[LANG] || I18N.fr;
+const cname = p => LANG==='fr' ? p.country : ((COUNTRY_I18N[p.country] && COUNTRY_I18N[p.country][LANG]) || p.country);
+
+const byId = Object.fromEntries(PLAYERS.map(p=>[p.id,p]));
+// state
+let pool = PLAYERS.map(p=>p.id);          // ids in the candidate list (order)
+let ranking = new Array(10).fill(null);    // slot index -> id or null
+
+const $pool = document.getElementById('pool');
+const $rank = document.getElementById('ranking');
+
+/* stat strings */
+function statParts(p){
+  const out = [L.stat.m(p.apps)];
+  if(p.goals>0)   out.push(L.stat.g(p.goals));
+  if(p.assists>0) out.push(L.stat.a(p.assists));
+  return out;
+}
+function statHtml(p){ return statParts(p).join('<span class="sep">·</span>'); }
+function statLine(p){ return statParts(p).join(' · '); }
+
+function photo(p){
+  return `<div class="ph"><img src="${p.img}" alt="" loading="lazy" onerror="this.remove()"></div>`;
+}
+
+function render(){
+  // pool
+  $pool.innerHTML = pool.map(id=>{
+    const p = byId[id];
+    return `<div class="card" data-id="${id}" data-from="pool">
+      ${photo(p)}
+      <div class="info">
+        <div class="nm">${p.name}</div>
+        <div class="ct">${p.flag} ${cname(p)}</div>
+        <div class="st">${statHtml(p)}</div>
+      </div>
+      <div class="grip">⠿</div>
+    </div>`;
+  }).join('') || `<div style="font-size:11px;color:var(--muted);opacity:.6;padding:6px">${L.emptyPool}</div>`;
+
+  // ranking
+  $rank.innerHTML = ranking.map((id,i)=>{
+    const r = i+1;
+    if(id==null){
+      return `<div class="slot" data-rank="${r}" data-slot="${i}">
+        <div class="rank">${r}</div>
+        <div class="empty">${L.slotEmpty}</div>
+      </div>`;
+    }
+    const p = byId[id];
+    return `<div class="slot filled" data-rank="${r}" data-slot="${i}">
+      <div class="rank">${r}</div>
+      <div class="slotcard" data-id="${id}" data-from="${i}">
+        ${photo(p)}
+        <div class="info" style="min-width:0;flex:1">
+          <div class="nm">${p.name}</div>
+          <div class="ct">${p.flag} ${cname(p)} <span class="st">${statHtml(p)}</span></div>
+        </div>
+      </div>
+      <button class="rm" title="✕" data-remove="${i}">✕</button>
+    </div>`;
+  }).join('');
+
+  document.getElementById('poolCnt').textContent = pool.length;
+  document.getElementById('rankCnt').textContent = ranking.filter(Boolean).length + '/10';
+}
+
+/* ---------- placement logic ---------- */
+function firstEmptySlot(){ return ranking.indexOf(null); }
+
+function moveToSlot(id, from, targetSlot){
+  if(from==='pool'){ pool = pool.filter(x=>x!==id); }
+  else { ranking[Number(from)] = null; }
+
+  const occupant = ranking[targetSlot];
+  ranking[targetSlot] = id;
+
+  if(occupant!=null && occupant!==id){
+    if(from==='pool'){
+      if(!pool.includes(occupant)) pool.unshift(occupant);
+    } else {
+      ranking[Number(from)] = occupant;
+    }
+  }
+}
+function moveToPool(id, from){
+  if(from==='pool') return;
+  ranking[Number(from)] = null;
+  if(!pool.includes(id)) pool.push(id);
+}
+
+/* ---------- unified pointer drag & drop ---------- */
+let drag = null;
+const THRESH = 6;
+
+function onDown(e){
+  const handle = e.target.closest('.card, .slotcard');
+  if(!handle) return;
+  if(e.target.closest('.rm')) return;
+  const id = Number(handle.dataset.id);
+  const from = handle.dataset.from;
+  const pt = point(e);
+  drag = {id, from, startX:pt.x, startY:pt.y, started:false, clone:null, src:handle};
+  window.addEventListener('pointermove', onMove, {passive:false});
+  window.addEventListener('pointerup', onUp, {passive:false});
+}
+function point(e){ return {x:e.clientX, y:e.clientY}; }
+
+function startDrag(){
+  drag.started = true;
+  document.body.classList.add('dragging');
+  drag.src.style.opacity = '.35';
+  const clone = document.createElement('div');
+  clone.id = 'drag-clone';
+  const p = byId[drag.id];
+  clone.innerHTML = `<div class="card">${photo(p)}<div class="info">
+      <div class="nm">${p.name}</div><div class="st">${statHtml(p)}</div></div></div>`;
+  document.body.appendChild(clone);
+  drag.clone = clone;
+}
+function onMove(e){
+  if(!drag) return;
+  const pt = point(e);
+  if(!drag.started){
+    if(Math.hypot(pt.x-drag.startX, pt.y-drag.startY) < THRESH) return;
+    startDrag();
+  }
+  e.preventDefault();
+  drag.clone.style.left = pt.x+'px';
+  drag.clone.style.top  = pt.y+'px';
+  highlight(pt);
+}
+function elUnder(pt){
+  drag.clone.style.display='none';
+  const el = document.elementFromPoint(pt.x, pt.y);
+  drag.clone.style.display='';
+  return el;
+}
+function dropTarget(pt){
+  const el = elUnder(pt);
+  if(!el) return null;
+  const slot = el.closest('.slot');
+  if(slot) return {type:'slot', idx:Number(slot.dataset.slot)};
+  if(el.closest('#pool')) return {type:'pool'};
+  return null;
+}
+function highlight(pt){
+  document.querySelectorAll('.slot.over').forEach(s=>s.classList.remove('over'));
+  $pool.classList.remove('over-pool');
+  const t = dropTarget(pt);
+  if(!t) return;
+  if(t.type==='slot') $rank.children[t.idx].classList.add('over');
+  else $pool.classList.add('over-pool');
+}
+function onUp(e){
+  window.removeEventListener('pointermove', onMove);
+  window.removeEventListener('pointerup', onUp);
+  if(!drag){ return; }
+  if(!drag.started){ drag=null; return; }
+  const t = dropTarget(point(e));
+  if(t){
+    if(t.type==='slot') moveToSlot(drag.id, drag.from, t.idx);
+    else moveToPool(drag.id, drag.from);
+  }
+  cleanup();
+  render();
+}
+function cleanup(){
+  document.body.classList.remove('dragging');
+  if(drag && drag.clone) drag.clone.remove();
+  drag = null;
+}
+
+/* ---------- click / dblclick ---------- */
+document.addEventListener('click', e=>{
+  const rm = e.target.closest('[data-remove]');
+  if(rm){ moveToPool(ranking[Number(rm.dataset.remove)], rm.dataset.remove); render(); return; }
+});
+$pool.addEventListener('dblclick', e=>{
+  const c = e.target.closest('.card'); if(!c) return;
+  const slot = firstEmptySlot(); if(slot<0) return;
+  moveToSlot(Number(c.dataset.id), 'pool', slot); render();
+});
+document.addEventListener('pointerdown', onDown);
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  pool = PLAYERS.map(p=>p.id); ranking = new Array(10).fill(null); render();
+});
+
+/* ================================================================
+   PARTAGE RÉSEAUX SOCIAUX
+   ================================================================ */
+const CONFIG = { shareUrl:"" };
+let HOST_URL = "";
+try{
+  if(document.referrer){
+    const r = new URL(document.referrer);
+    if(r.origin !== location.origin) HOST_URL = document.referrer;
+  }
+}catch(_){}
+const shareUrl = () => HOST_URL || CONFIG.shareUrl || location.href;
+
+function rankedPlayers(){ return ranking.filter(Boolean).map(id=>byId[id]); }
+function shareText(){
+  const list = rankedPlayers();
+  if(!list.length) return L.shareEmpty;
+  let t = L.shareIntro + "\n";
+  list.forEach((p,i)=>{ t += `${i+1}. ${p.name} ${p.flag}\n`; });
+  return t.trim();
+}
+const openShare = u => window.open(u, '_blank', 'noopener,noreferrer');
+function flash(msg){ const m=document.getElementById('shMsg'); m.textContent=msg; clearTimeout(flash._t); flash._t=setTimeout(()=>m.textContent='',3000); }
+
+document.getElementById('shX').addEventListener('click', ()=>openShare(
+  `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText())}&url=${encodeURIComponent(shareUrl())}&hashtags=${encodeURIComponent(L.hashtags)}`));
+document.getElementById('shFb').addEventListener('click', ()=>openShare(
+  `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl())}&quote=${encodeURIComponent(shareText())}`));
+document.getElementById('shWa').addEventListener('click', ()=>openShare(
+  `https://wa.me/?text=${encodeURIComponent(shareText()+'\n'+shareUrl())}`));
+document.getElementById('shCopy').addEventListener('click', async ()=>{
+  const txt = shareText()+'\n'+shareUrl();
+  try{ await navigator.clipboard.writeText(txt); flash(L.msgCopied); }
+  catch(_){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); flash(L.msgCopied); }
+});
+
+/* ================================================================
+   IMAGE (canvas) — téléchargement + partage natif
+   ================================================================ */
+const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+function rrect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+function loadImg(src){
+  return new Promise(res=>{ const im=new Image(); im.crossOrigin='anonymous';
+    im.onload=()=>res(im); im.onerror=()=>res(null); im.src=src; });
+}
+function initials(n){ return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+function ellipsize(ctx,text,maxW){
+  if(ctx.measureText(text).width<=maxW) return text;
+  let t=text; while(t.length>1 && ctx.measureText(t+'…').width>maxW) t=t.slice(0,-1);
+  return t+'…';
+}
+function drawAvatar(ctx,p,im,cx,cy,r){
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.closePath();
+  ctx.fillStyle='#eef1f4'; ctx.fill(); ctx.clip();
+  if(im){ ctx.drawImage(im, cx-r, cy-r, r*2, r*2); }
+  else{
+    ctx.fillStyle='#c7ced7'; ctx.fillRect(cx-r,cy-r,r*2,r*2);
+    ctx.fillStyle='#fff'; ctx.font='800 '+Math.round(r*0.8)+'px '+FONT;
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(initials(p.name), cx, cy+1);
+  }
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.lineWidth=1.5; ctx.strokeStyle='#e3e7ec'; ctx.stroke();
+}
+
+async function buildTop10Canvas(){
+    const list = rankedPlayers();
+    const imgs={}; await Promise.all(list.map(async p=>{ imgs[p.id]=await loadImg(p.img); }));
+
+    const RED='#e11d2e', INK='#14181f', MUT='#6b7682';
+    const scale=2, W=680, pad=40;
+    const headH=150, rowH=66, rowGap=8, listTop=headH+8, footerH=58;
+    const n=Math.max(list.length,1);
+    const H=listTop + n*rowH + (n-1)*rowGap + footerH;
+
+    const cv=document.createElement('canvas');
+    cv.width=W*scale; cv.height=H*scale;
+    const ctx=cv.getContext('2d'); ctx.scale(scale,scale);
+
+    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
+
+    // titre (centré, partie rouge)
+    ctx.textBaseline='alphabetic';
+    const t1=L.titlePre, t2=L.titleRed;
+    ctx.font='800 27px '+FONT;
+    const w1=ctx.measureText(t1).width, w2=ctx.measureText(t2).width;
+    let tx=(W-(w1+w2))/2;
+    ctx.textAlign='left';
+    ctx.fillStyle=INK; ctx.fillText(t1, tx, 56);
+    ctx.fillStyle=RED; ctx.fillText(t2, tx+w1, 56);
+    // sous-titre
+    ctx.textAlign='center'; ctx.fillStyle=MUT; ctx.font='400 14px '+FONT;
+    ctx.fillText(L.imgSubtitle, W/2, 84);
+    // divider
+    ctx.strokeStyle='#e3e7ec'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad,108); ctx.lineTo(W-pad,108); ctx.stroke();
+
+    if(!list.length){
+      ctx.textAlign='center'; ctx.fillStyle=MUT; ctx.font='600 16px '+FONT;
+      ctx.fillText(L.imgEmpty, W/2, listTop+40);
+    }
+
+    const medal=['#e0a200','#8a93a0','#c07a3e'];
+    list.forEach((p,i)=>{
+      const y=listTop + i*(rowH+rowGap);
+      ctx.save(); rrect(ctx,pad,y,W-2*pad,rowH,12);
+      ctx.fillStyle='#ffffff'; ctx.fill();
+      ctx.lineWidth=1; ctx.strokeStyle='#e3e7ec'; ctx.stroke(); ctx.restore();
+
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle = i<3 ? medal[i] : MUT;
+      ctx.font='800 24px '+FONT;
+      ctx.fillText(String(i+1), pad+30, y+rowH/2+1);
+
+      const cx=pad+78, cy=y+rowH/2;
+      drawAvatar(ctx,p,imgs[p.id],cx,cy,24);
+
+      const nx=pad+114;
+      ctx.textAlign='left';
+      ctx.fillStyle=INK; ctx.font='700 17px '+FONT; ctx.textBaseline='alphabetic';
+      ctx.fillText(ellipsize(ctx,p.name,W-2*pad-160), nx, y+28);
+      ctx.fillStyle=MUT; ctx.font='400 13px '+FONT;
+      const cty=cname(p)+'   ';
+      ctx.fillText(cty, nx, y+48);
+      const cw=ctx.measureText(cty).width;
+      ctx.fillStyle=RED; ctx.font='600 13px '+FONT;
+      ctx.fillText(statLine(p), nx+cw, y+48);
+    });
+
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+    ctx.fillStyle=MUT; ctx.font='400 12px '+FONT;
+    ctx.fillText(L.imgFoot, W/2, H-22);
+
+    return cv;
+}
+const canvasToBlob = cv => new Promise(r=>cv.toBlob(r,'image/png'));
+
+async function downloadImage(){
+  const btn=document.getElementById('shImg'); const old=btn.innerHTML;
+  btn.disabled=true; btn.textContent=L.msgGenerating;
+  try{
+    const cv=await buildTop10Canvas();
+    const a=document.createElement('a');
+    a.download='top10-mondial-2026.png'; a.href=cv.toDataURL('image/png'); a.click();
+    flash(L.msgDownloaded);
+  }catch(err){ flash(L.msgGenError); console.error(err); }
+  finally{ btn.disabled=false; btn.innerHTML=old; }
+}
+
+async function shareNative(){
+  const btn=document.getElementById('shNative'); const old=btn.innerHTML;
+  btn.disabled=true; btn.textContent=L.msgPreparing;
+  try{
+    const cv=await buildTop10Canvas();
+    const blob=await canvasToBlob(cv);
+    const file=new File([blob], 'top10-mondial-2026.png', {type:'image/png'});
+    const text=shareText()+'\n'+shareUrl();
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({title:L.docTitle, text, files:[file]});
+    } else if(navigator.share){
+      await navigator.share({title:L.docTitle, text:shareText(), url:shareUrl()});
+    } else {
+      const a=document.createElement('a'); a.download=file.name; a.href=cv.toDataURL('image/png'); a.click();
+      flash(L.msgDownloaded);
+    }
+  }catch(err){ if(!err || err.name!=='AbortError'){ flash(L.msgShareUnavail); console.error(err); } }
+  finally{ btn.disabled=false; btn.innerHTML=old; }
+}
+
+if(navigator.share){ document.getElementById('shNative').hidden=false; }
+document.getElementById('shNative').addEventListener('click', shareNative);
+document.getElementById('shImg').addEventListener('click', downloadImage);
+
+/* ================================================================
+   APPLIQUER LA LANGUE AUX TEXTES STATIQUES
+   ================================================================ */
+function applyI18n(){
+  document.documentElement.lang = L.htmlLang;
+  document.title = L.docTitle;
+  document.getElementById('title').innerHTML = L.titlePre + '<b>' + L.titleRed + '</b>';
+  document.getElementById('subtitle').textContent = L.subtitle;
+  document.getElementById('poolLabel').textContent = L.poolLabel;
+  document.getElementById('rankLabel').textContent = L.rankLabel;
+  document.getElementById('resetBtn').textContent = L.reset;
+  document.getElementById('shareTitle').textContent = L.shareTitle;
+  document.getElementById('lblCopy').textContent = L.copy;
+  document.getElementById('lblNative').textContent = L.share;
+  document.getElementById('lblImg').textContent = L.download;
+  document.getElementById('foot').textContent = L.foot;
+  document.querySelectorAll('.langs a').forEach(a=>{
+    if(a.dataset.lang===LANG) a.classList.add('active');
+  });
+}
+
+applyI18n();
+render();
+</script>
+</body>
+</html>
