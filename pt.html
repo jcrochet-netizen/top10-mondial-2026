@@ -317,7 +317,7 @@ const I18N = {
     imgEmpty:'Aucun joueur classé pour le moment.', imgFoot:'Photos & statistiques : Sportmonks',
     validate:'Valider mon Top 10', validateHint:'Classez les 10 joueurs pour valider',
     back:'← Modifier mon classement', recapTitle:'Le Top 10 de la communauté',
-    recapSub:"Pour chaque rang, le joueur le plus voté — chaque joueur n'apparaît qu'à sa meilleure place.",
+    recapSub:"Classement par points : 10 pts pour un 1er, 9 pts pour un 2e… 1 pt pour un 10e, cumulés sur tous les votes.",
     recapLoading:'Chargement des résultats…',
     recapError:'Résultats de la communauté indisponibles pour le moment. Affichage de votre vote.',
     recapSoloNote:'En attente de connexion au Google Sheet — seul votre vote est affiché.',
@@ -345,7 +345,7 @@ const I18N = {
     imgEmpty:'No players ranked yet.', imgFoot:'Photos & stats: Sportmonks',
     validate:'Validate my Top 10', validateHint:'Rank all 10 players to validate',
     back:'← Edit my ranking', recapTitle:"The community's Top 10",
-    recapSub:'For each rank, the most-voted player — each player appears only at their best position.',
+    recapSub:'Ranked by points: 10 pts for a 1st, 9 for a 2nd… 1 for a 10th, totalled across all votes.',
     recapLoading:'Loading results…',
     recapError:'Community results unavailable right now. Showing your vote.',
     recapSoloNote:'Waiting for the Google Sheet connection — only your vote is shown.',
@@ -373,7 +373,7 @@ const I18N = {
     imgEmpty:'Nenhum jogador classificado ainda.', imgFoot:'Fotos e estatísticas: Sportmonks',
     validate:'Validar meu Top 10', validateHint:'Classifique os 10 jogadores para validar',
     back:'← Editar meu ranking', recapTitle:'O Top 10 da comunidade',
-    recapSub:'Para cada posição, o jogador mais votado — cada jogador aparece apenas na sua melhor posição.',
+    recapSub:'Classificação por pontos: 10 pts para um 1º, 9 para um 2º… 1 para um 10º, somados em todos os votos.',
     recapLoading:'Carregando resultados…',
     recapError:'Resultados da comunidade indisponíveis no momento. Exibindo o seu voto.',
     recapSoloNote:'Aguardando a conexão com o Google Sheets — apenas o seu voto é exibido.',
@@ -802,23 +802,22 @@ function mergeOwnVote(base){
   });
   return t;
 }
-function totalFor(tally,id){ const o=tally[id]; if(!o) return 0; let s=0; for(const k in o) s+=o[k]; return s; }
-
-// consensus rang par rang : pour chaque rang on prend le joueur (non encore placé)
-// le plus voté à ce rang ; un joueur ne garde que sa meilleure place.
+// Consensus par points (méthode Borda) : chaque vote attribue
+// 10 pts pour un 1er, 9 pts pour un 2e, … 1 pt pour un 10e.
+// On additionne les points de chaque joueur, puis on classe par total décroissant.
 function computeConsensus(tally){
-  const used=new Set(), res=[];
-  for(let rank=1; rank<=10; rank++){
-    let best=null, bestCount=-1, bestTot=-1;
-    for(const p of PLAYERS){
-      if(used.has(p.id)) continue;
-      const c=(tally[p.id]&&tally[p.id][rank])||0;
-      const tot=totalFor(tally,p.id);
-      if(c>bestCount || (c===bestCount && tot>bestTot)){ best=p; bestCount=c; bestTot=tot; }
+  const scored = PLAYERS.map(p=>{
+    const ranks = tally[p.id] || {};
+    let points = 0, ballots = 0;
+    for(const r in ranks){
+      const c = ranks[r];
+      points  += c * (11 - Number(r));   // rang 1 → 10 pts … rang 10 → 1 pt
+      ballots += c;                       // nb de fois où le joueur a été classé
     }
-    if(best){ used.add(best.id); res.push({rank, p:best, count:Math.max(bestCount,0)}); }
-  }
-  return res;
+    return {p, points, ballots};
+  }).filter(s => s.points > 0);           // uniquement les joueurs ayant reçu des votes
+  scored.sort((a,b)=> b.points - a.points || b.ballots - a.ballots);
+  return scored.slice(0,10).map((s,i)=>({rank:i+1, p:s.p, points:s.points}));
 }
 
 function renderRecap(tally, votes){

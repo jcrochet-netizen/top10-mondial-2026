@@ -34,11 +34,12 @@ et la pluralisation sont gérés dans l'objet `I18N`.
 relié à un **Google Sheet**, puis l'écran récap affiche le **classement consensus** de
 la communauté.
 
-**Méthode de consensus (rang par rang, gloutonne) :**
-pour le rang 1 on prend le joueur le plus voté en n°1 ; pour le rang 2 le plus voté en
-n°2 *parmi les joueurs restants* ; etc. **Un joueur ne garde que sa meilleure place** :
-s'il est le plus voté en n°1 **et** en n°4, il est placé en n°1, et le n°4 revient au
-joueur suivant le plus voté à ce rang.
+**Méthode de classement — système de points (Borda) :**
+chaque vote attribue **10 points** à son n°1, **9** au n°2, … **1** au n°10. On additionne
+les points reçus par chaque joueur sur l'ensemble des votes, puis on classe par **total
+de points décroissant** pour établir le Top 10. Égalité départagée par le nombre de fois
+où le joueur a été classé. Le calcul se fait côté client ; l'Apps Script ne stocke que
+les rangs bruts.
 
 ### Connexion (script fourni : [`apps-script/Code.gs`](apps-script/Code.gs))
 
