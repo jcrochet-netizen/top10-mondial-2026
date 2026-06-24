@@ -34,7 +34,15 @@
   .col h2 .cnt{margin-left:auto; color:var(--accent); font-weight:700}
 
   /* ---- Pool (left) ---- */
-  #pool{min-height:80px; display:flex; flex-direction:column; gap:7px}
+  #pool{
+    min-height:80px; max-height:540px; overflow-y:auto; overscroll-behavior:contain;
+    display:flex; flex-direction:column; gap:7px; padding-right:4px;
+    scrollbar-width:thin; scrollbar-color:#c7ced7 transparent;
+  }
+  #pool::-webkit-scrollbar{width:7px}
+  #pool::-webkit-scrollbar-thumb{background:#c7ced7; border-radius:4px}
+  #pool::-webkit-scrollbar-thumb:hover{background:#aab3bf}
+  #pool::-webkit-scrollbar-track{background:transparent}
   .card{
     display:flex; align-items:center; gap:8px; background:var(--panel2);
     border:1px solid var(--line); border-radius:10px; padding:6px 8px;
@@ -159,7 +167,7 @@
     .col h2{font-size:9.5px; letter-spacing:.6px; margin-bottom:7px; gap:4px}
 
     /* ---- cartes candidats : plus concentrées et moins larges ---- */
-    #pool{gap:5px}
+    #pool{gap:5px; max-height:64vh}
     .card{padding:5px; gap:6px; border-radius:9px}
     .card .ph{width:30px; height:30px; flex-basis:30px}
     .card .nm{font-size:11px; line-height:1.15}
