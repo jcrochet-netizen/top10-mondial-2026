@@ -58,8 +58,52 @@ visiteur est affiché). Anti-spam : 1 vote par navigateur (`localStorage`).
 Joueurs et stats figés dans chaque fichier HTML (saison Coupe du Monde 2026, Sportmonks).
 La clé API n'est pas exposée : seules les URLs publiques du CDN images sont utilisées.
 
-## Intégration
+## Intégration WordPress (bloc « HTML personnalisé »)
 
-Page autonome, sans build. À héberger tel quel ou à intégrer en `<iframe>`.
-En iframe, l'URL de partage est détectée automatiquement via le `referrer`
-(sinon renseigner `CONFIG.shareUrl`).
+L'outil émet sa hauteur au parent (`postMessage` → `{type:'top10-height'}`), donc
+l'iframe s'auto-redimensionne (pas de scroll interne, pas de CLS).
+
+```html
+<iframe
+  id="top10-wc2026"
+  src="https://jcrochet-netizen.github.io/top10-mondial-2026/"
+  title="Top 10 des meilleurs joueurs du Mondial 2026"
+  loading="lazy"
+  referrerpolicy="strict-origin-when-cross-origin"
+  style="width:100%;border:0;min-height:1100px;"></iframe>
+
+<script>
+window.addEventListener('message', function (e) {
+  if (e.data && e.data.type === 'top10-height') {
+    document.getElementById('top10-wc2026').style.height = e.data.height + 'px';
+  }
+});
+</script>
+```
+
+Versions : `…/` (FR), `…/en.html` (EN), `…/pt.html` (PT-BR).
+
+## Bonnes pratiques SEO
+
+> ⚠️ Le contenu d'une iframe **n'est pas attribué** à la page WordPress par Google
+> (il appartient au domaine `github.io`). Une page qui ne contient **que** l'iframe est
+> donc « vide » pour le SEO. À encadrer impérativement de contenu HTML crawlable.
+
+1. **Titre + texte réels** autour de l'iframe : un `H1`/`H2` avec le mot-clé cible
+   (« meilleurs joueurs du Mondial 2026 ») et 150–300 mots d'introduction.
+2. **Liste crawlable** des candidats (noms + pays + stats) en HTML *avant ou après*
+   l'iframe, pour que Google indexe le contenu (voir bloc d'exemple plus bas / fourni en chat).
+3. **`title`** descriptif sur l'iframe + **`loading="lazy"`** (Core Web Vitals) +
+   **`min-height`** de repli pour éviter le *layout shift* (CLS).
+4. **`referrerpolicy="strict-origin-when-cross-origin"`** : laisse l'outil détecter le
+   domaine parent pour les partages (sinon renseigner `CONFIG.shareUrl`).
+5. **Multilingue** : place chaque langue sur une URL dédiée et relie-les en
+   **`hreflang`** (FR/EN/PT-BR) avec un `canonical` auto-référent par page.
+6. **(Option) Données structurées** `ItemList` (JSON-LD) listant les joueurs, pour
+   enrichir l'éligibilité aux résultats enrichis.
+
+## Personnalisation
+
+- `CONFIG.votesUrl` : endpoint Apps Script (voir section vote ci-dessus).
+- `CONFIG.shareUrl` : URL exacte de la page WordPress (utilisée dans les partages X/Facebook).
+  Vide = détection auto du domaine via `referrer`.
