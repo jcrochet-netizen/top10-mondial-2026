@@ -267,6 +267,17 @@ const PLAYERS = [
   {id:524045,   name:"Daniel Munoz",         country:"Colombie",       flag:"🇨🇴", img:"https://cdn.sportmonks.com/images/soccer/players/13/524045.png",   apps:2, goals:2, assists:0},
   {id:310131,   name:"Daichi Kamada",        country:"Japon",          flag:"🇯🇵", img:"https://cdn.sportmonks.com/images/soccer/players/19/310131.png",   apps:2, goals:2, assists:0},
   {id:37922937, name:"Yan Diomandé",         country:"Côte d'Ivoire",  flag:"🇨🇮", img:"https://cdn.sportmonks.com/images/soccer/players/25/37922937.png", apps:2, goals:0, assists:0},
+  {id:997,      name:"Harry Kane",           country:"Angleterre",     flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", img:"https://cdn.sportmonks.com/images/soccer/players/5/997.png",       apps:2, goals:2, assists:0},
+  {id:241036,   name:"Luis Díaz",            country:"Colombie",       flag:"🇨🇴", img:"https://cdn.sportmonks.com/images/soccer/players/12/241036.png",   apps:2, goals:1, assists:1},
+  {id:254057,   name:"Julián Quiñones",      country:"Mexique",        flag:"🇲🇽", img:"https://cdn.sportmonks.com/images/soccer/players/9/254057.png",    apps:2, goals:1, assists:0},
+  {id:4125,     name:"Mohamed Salah",        country:"Egypte",         flag:"🇪🇬", img:"https://cdn.sportmonks.com/images/soccer/players/29/4125.png",     apps:2, goals:1, assists:2},
+  {id:1478864,  name:"Rubén Vargas",         country:"Suisse",         flag:"🇨🇭", img:"https://cdn.sportmonks.com/images/soccer/players/16/1478864.png",  apps:2, goals:1, assists:1},
+  {id:5273,     name:"Declan Rice",          country:"Angleterre",     flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", img:"https://cdn.sportmonks.com/images/soccer/players/25/5273.png",     apps:2, goals:0, assists:1},
+  {id:24799984, name:"Michael Olise",        country:"France",         flag:"🇫🇷", img:"https://cdn.sportmonks.com/images/soccer/players/16/24799984.png", apps:2, goals:0, assists:4},
+  {id:600687,   name:"Vinícius Júnior",      country:"Brésil",         flag:"🇧🇷", img:"https://cdn.sportmonks.com/images/soccer/players/15/600687.png",   apps:2, goals:2, assists:1},
+  {id:5666491,  name:"Keito Nakamura",       country:"Japon",          flag:"🇯🇵", img:"https://cdn.sportmonks.com/images/soccer/players/27/5666491.png",  apps:2, goals:1, assists:1},
+  {id:340342,   name:"Brahim Díaz",          country:"Maroc",          flag:"🇲🇦", img:"https://cdn.sportmonks.com/images/soccer/players/22/340342.png",   apps:2, goals:0, assists:2},
+  {id:37623379, name:"Alex Freeman",         country:"États-Unis",     flag:"🇺🇸", img:"https://cdn.sportmonks.com/images/soccer/players/19/37623379.png", apps:2, goals:1, assists:1},
 ];
 
 /* ----------------- Traductions ----------------- */
@@ -364,6 +375,11 @@ const COUNTRY_I18N = {
   "Colombie":{en:"Colombia",pt:"Colômbia"},
   "Japon":{en:"Japan",pt:"Japão"},
   "Côte d'Ivoire":{en:"Ivory Coast",pt:"Costa do Marfim"},
+  "Angleterre":{en:"England",pt:"Inglaterra"},
+  "Mexique":{en:"Mexico",pt:"México"},
+  "Egypte":{en:"Egypt",pt:"Egito"},
+  "Brésil":{en:"Brazil",pt:"Brasil"},
+  "États-Unis":{en:"United States",pt:"Estados Unidos"},
 };
 const L = I18N[LANG] || I18N.fr;
 const cname = p => LANG==='fr' ? p.country : ((COUNTRY_I18N[p.country] && COUNTRY_I18N[p.country][LANG]) || p.country);
