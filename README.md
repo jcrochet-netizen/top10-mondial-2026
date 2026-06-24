@@ -14,9 +14,9 @@ Coupe du Monde 2026 (données figées **après les 2 premières journées** de l
 | 🇬🇧 Anglais | [`en.html`](en.html) |
 | 🇧🇷 Portugais (Brésil) | [`pt.html`](pt.html) |
 
-Un sélecteur de langue (FR · EN · PT-BR) est intégré en haut de chaque page.
-Le code est **identique** entre les trois fichiers : seule la ligne `const LANG = '…';`
-change. Les libellés, les noms de pays et la pluralisation sont gérés dans l'objet `I18N`.
+Chaque page est autonome dans sa langue. Le code est **identique** entre les trois
+fichiers : seule la ligne `const LANG = '…';` change. Les libellés, les noms de pays
+et la pluralisation sont gérés dans l'objet `I18N`.
 
 ## Fonctionnalités
 

@@ -24,12 +24,6 @@
   header h1{margin:0; font-size:18px; letter-spacing:.2px}
   header h1 b{color:var(--accent)}
   header p{margin:4px 0 0; font-size:12px; color:var(--muted)}
-  .langs{display:flex; gap:6px; justify-content:center; margin-bottom:8px}
-  .langs a{
-    font-size:10px; font-weight:700; letter-spacing:.5px; text-decoration:none;
-    color:var(--muted); border:1px solid var(--line); border-radius:6px; padding:3px 7px;
-  }
-  .langs a.active{color:#fff; background:var(--accent); border-color:var(--accent)}
 
   .board{display:grid; grid-template-columns:1fr 1fr; gap:10px}
   .col{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:10px}
@@ -137,11 +131,6 @@
 <body>
 <div class="wrap">
   <header>
-    <nav class="langs">
-      <a href="index.html" data-lang="fr">FR</a>
-      <a href="en.html" data-lang="en">EN</a>
-      <a href="pt.html" data-lang="pt">PT-BR</a>
-    </nav>
     <h1 id="title"></h1>
     <p id="subtitle"></p>
   </header>
@@ -654,9 +643,6 @@ function applyI18n(){
   document.getElementById('lblNative').textContent = L.share;
   document.getElementById('lblImg').textContent = L.download;
   document.getElementById('foot').textContent = L.foot;
-  document.querySelectorAll('.langs a').forEach(a=>{
-    if(a.dataset.lang===LANG) a.classList.add('active');
-  });
 }
 
 applyI18n();
